@@ -1,6 +1,6 @@
 #include "FileSystem.h"
 
-bool FileSystem::sortBySecondNum(const std::string &p1, const std::string &p2) {
+static bool sortBySecondNum(const std::string &p1, const std::string &p2) {
 //e.g. 10_123.bmp p1_sNum = 123
 //	   23_32.bmp  p2_sNum =32
 	std::size_t p1_underline = p1.find("_");
@@ -19,22 +19,36 @@ bool FileSystem::sortBySecondNum(const std::string &p1, const std::string &p2) {
 std::vector<std::string> FileSystem::getFileList(std::string dirName, imgExt ext, bool showList) {
 	extMap map;
 	mDirPath = dirName;
-	fs::path mDirName(mDirPath);
-	//if(!fs::exists(mDirName)) return NULL;
-
-	if(fs::is_directory(mDirName)) {
-		fs::recursive_directory_iterator it(mDirName);
+	if(!fs::exists(mDirPath)) std::cout << "Does not exist path" << mDirPath << "\n";
+	
+	if(fs::is_directory(mDirPath)) {
+		std::cout << "Pls wait for reading.....\n";
+		fs::recursive_directory_iterator it(mDirPath);
 		fs::recursive_directory_iterator end;
 		while(it != end) {
 			if(fs::is_regular_file(*it) && it->path().extension() == map[ext]) {
-				mFileList.push_back(it->path().filename().string());
+				std::string filename = it->path().filename().string();
+				mFileList.push_back(filename);
+				mDirFileList.push_back(mDirPath + "\\" + it->path().filename().string());
 			}
 			++it;
 		}
 	}
-	if(showList) showFileList();
+
+	if(showList) {
+		int i = 1;
+		for(std::vector<std::string>::iterator it = mFileList.begin(); it!= mFileList.end(); it++) {
+			std::cout << "<" << i++ << ">\t" << *it << std::endl;
+		}
+	}
+	return mDirFileList;
+}
+
+std::vector<std::string> FileSystem::getfilename() {
+	assert(!mFileList.empty());
 	return mFileList;
 }
+
 // resizeDim() is to make it straightforward
 // the result array will be the two dimesion array
 // and organized as result[sample][numRegister]
@@ -69,19 +83,15 @@ std::vector<std::vector<std::string>> FileSystem::appendPath() {
 }
 
 void FileSystem::showFileList() {
-	/*int i = 0;
-	for(std::vector<std::string>::iterator it = mFileList.begin(); it!= mFileList.end(); it++, i++) {
-		std::cout << "<" << i << ">\t" << *it << std::endl;
-	}*/
 	int i = 0;
 	for(std::vector<std::vector<std::string>>::iterator it = mResizeFileList.begin(); it != mResizeFileList.end(); it++) {
-		for(std::vector<std::string>::iterator inner = it->begin(); inner != it->end(); inner++, i++) {
-			std::cout << "<" << i << ">\t" << *inner << std::endl;
+		for(std::vector<std::string>::iterator inner = it->begin(); inner != it->end(); inner++) {
+			std::cout << "<" << i++ << ">\t" << *inner << std::endl;
 		}
 	}
 }
 
-std::vector<std::vector<std::string>> FileSystem::getImageName(std::string dirName, int sample, int numRegister,bool showList) {
+std::vector<std::vector<std::string>> FileSystem::getFilelist(std::string dirName, int sample, int numRegister, bool showList) {
 	std::vector<std::vector<std::string>> filePath;
 	getFileList(dirName, BMP);
 	resizeDim(sample, numRegister);

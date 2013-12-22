@@ -32,16 +32,19 @@ struct extMap:std::map<unsigned int, std::string> {
 
 class FileSystem {
 	public:
-		std::vector<std::string> getFileList(std::string dirName, imgExt ext,bool showList);
+		std::vector<std::string> getFileList(std::string dirName, imgExt ext,bool showList = false);
+		// with specific output format
+		std::vector<std::vector<std::string>> getFilelist(std::string dirName, int sample, int numRegister, bool showList = false);
+		std::vector<std::string> getfilename();
 		std::vector<std::vector<std::string>> appendPath();
-		std::vector<std::vector<std::string>> getImageName(std::string dirName, int sample, int numRegister, bool showList);
-		void showFileList();
+		void showFileList(); //only for the mResizeFileList
 
 	private:
-		bool sortBySecondNum(const std::string &p1, const std::string &p2);
+		//bool sortBySecondNum(const std::string &p1, const std::string &p2);
 		std::vector<std::vector<std::string>> resizeDim(int sample, int numRegister);
 	private:
 		std::vector<std::string> mFileList;
+		std::vector<std::string> mDirFileList;
 		std::vector<std::vector<std::string>> mResizeFileList;
 		std::string mDirPath;
 		int mSample;
